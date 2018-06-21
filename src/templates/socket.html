@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 100px;">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="icon" href="../assets/imgs/pp.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="../assets/imgs/pp.ico" type="image/x-icon" />
+  <title>websocket test</title>
+  <style>
+    body{
+      font-size: 14px;
+    }
+    h1 {
+      font-size: .14rem;
+      color: purple;
+    }
+    ul{
+      display: block;
+      margin: 0;
+      padding: 0;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+    }
+    li{
+      display: block;
+      font-size: 12px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <img src="../assets/imgs/pp.png" width="24"><b>all module</b>
+  <ul id="messages"></ul>
+  <input type="text" id="chatmsg">
+
+  <script src="../../node_modules/socket.io-client/dist/socket.io.js"></script>
+  <script>
+    var socket = io.connect()
+    var messageDom = document.querySelector('#messages')
+    var input = document.querySelector('#chatmsg')
+
+    function addMessageLine(message) {
+      var li = document.createElement('li')
+        li.innerHTML = message
+        messageDom.appendChild(li)
+    }
+
+    socket.on('connect', function () {
+      console.info('connect===')
+
+      socket.on('message', function (message) {
+        console.info('message===', message)
+        addMessageLine(message)
+      })
+
+      socket.on('disconnect', function () {
+        console.info('disconnect===')
+        addMessageLine('disconnect')
+      })
+
+      socket.on('news', function(news) {
+        console.info('news====', news)
+        addMessageLine(news.msg)
+      })
+
+      socket.on('chat-all-message', function(news){
+        console.info('=====chat-all-message', news)
+        addMessageLine(news.msg)
+      })
+
+      socket.on('chat-message', function(news){
+        console.info('=====chat-message', news)
+        addMessageLine(news.msg)
+      })
+
+      socket.on('user-connected-broadcast', function(news){
+        console.info('=====user-connected-broadcast', news)
+        addMessageLine(news.msg)
+      })
+    })
+
+    input.onkeypress = function (e) {
+      if (e.which == 13) {
+        var value = input.value
+        e.preventDefault()
+        socket.send(value)
+        addMessageLine(value)
+        input.value = ''
+      }
+    };
+  </script>
+</body>
+
+</html>
